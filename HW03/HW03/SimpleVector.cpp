@@ -31,20 +31,23 @@ public:
 		delete[] data;
 	}
 
-	void push_back(const T& value) {
-		if (currentSize >= currentCapacity) {
-			T* tmpData = new T[currentSize + 5];
-
-			for (int i = 0; i < currentSize; ++i) {
-				tmpData[i] = data[i];
+	void push_back(const T& value)
+	{
+		if (currentSize >= currentCapacity)
+		{
+			if (0 < currentCapacity)
+			{
+				int newCapacity = currentCapacity + 5;
+				T* tmpData = new T[newCapacity];
+				for (int i = 0; i < currentSize; ++i)
+				{
+					tmpData[i] = data[i];
+				}
+				currentCapacity = newCapacity;
+				delete[] data;
+				data = tmpData;
 			}
-
-			delete[] data;
-			data = tmpData;
-
-			currentCapacity += 5;
 		}
-
 		data[currentSize++] = value;
 	}
 
@@ -63,21 +66,29 @@ public:
 
 
 	void resize(int newCapacity) {
+		if (newCapacity < 0) {
+			cout << "양수를 입력하세요";
+			return;
+		}
+
 		T* tmpData = new T[newCapacity];
 
-		for (int i = 0; i < currentSize; ++i) {
+		int tmp = (newCapacity < currentSize) ? newCapacity : currentSize; // newCapacity가 원래 size보다 작은 경우 처리
+
+		for (int i = 0; i < tmp; i++) {
 			tmpData[i] = data[i];
 		}
 
 		delete[] data;
 		data = tmpData;
 
+		currentSize = tmp;
 		currentCapacity = newCapacity;
 	}
 
 	void sortData() {
 		// 오름차순 정렬
-		sort(data, data+ currentSize);
+		sort(data, data + currentSize);
 	}
 
 	void print() {
@@ -102,9 +113,7 @@ int main() {
 
 	vector1.print();
 
-
 	cout << "size :" << vector1.size() << ", capacity :" << vector1.capacity() << endl;
-
 
 	cout << endl << "- - - - - - - - - - - -" << endl;
 	SimpleVector<string> vector2(5);
@@ -118,7 +127,7 @@ int main() {
 	vector2.print();
 	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
 
-	vector2.push_back("벡터 크기를 늘려볼게요.") ;
+	vector2.push_back("벡터 크기를 늘려볼게요.");
 	vector2.push_back("얍!");
 	vector2.print();
 	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
@@ -126,7 +135,8 @@ int main() {
 	vector2.sortData();
 	vector2.print();
 	cout << "벡터 사이즈 변경" << endl;
-	vector2.resize(20);
+	vector2.resize(5);
 	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
+	vector2.print();
 	return 0;
 }
