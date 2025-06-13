@@ -1,21 +1,30 @@
 ﻿#include <iostream>
+#include <algorithm>
 
 using namespace std;
 
 template <typename T>
 class SimpleVector {
 private:
-
 	T* data;
 	int currentSize;
 	int currentCapacity;
 
 public:
-	SimpleVector() 
-		: data(new T[10]), currentCapacity(10), currentSize(0) {}
+	SimpleVector()
+		: data(new T[10]), currentCapacity(10), currentSize(0) {
+	}
 
 	SimpleVector(int x)
 		: data(new T[x]), currentCapacity(x), currentSize(0) {
+	}
+
+	SimpleVector(const SimpleVector& other)
+		: data(new T[other.currentCapacity]), currentSize(other.currentSize), currentCapacity(other.currentCapacity) {
+
+		for (int i = 0; i < currentSize; ++i) {
+			data[i] = other.data[i];
+		}
 	}
 
 	~SimpleVector() {
@@ -23,11 +32,25 @@ public:
 	}
 
 	void push_back(const T& value) {
+		if (currentSize >= currentCapacity) {
+			T* tmpData = new T[currentSize + 5];
+
+			for (int i = 0; i < currentSize; ++i) {
+				tmpData[i] = data[i];
+			}
+
+			delete[] data;
+			data = tmpData;
+
+			currentCapacity += 5;
+		}
+
 		data[currentSize++] = value;
 	}
 
-	void pop_back() {		
-		if(currentSize > 0) --currentSize; 			
+
+	void pop_back() {
+		if (currentSize > 0) --currentSize;
 	}
 
 	int size() {
@@ -38,6 +61,25 @@ public:
 		return currentCapacity;
 	}
 
+
+	void resize(int newCapacity) {
+		T* tmpData = new T[newCapacity];
+
+		for (int i = 0; i < currentSize; ++i) {
+			tmpData[i] = data[i];
+		}
+
+		delete[] data;
+		data = tmpData;
+
+		currentCapacity = newCapacity;
+	}
+
+	void sortData() {
+		// 오름차순 정렬
+		sort(data, data+ currentSize);
+	}
+
 	void print() {
 		cout << "현재 원소 : ";
 		for (int i = 0; i < currentSize; i++) {
@@ -45,7 +87,6 @@ public:
 		}
 		cout << endl;
 	}
-
 };
 
 
@@ -65,8 +106,8 @@ int main() {
 	cout << "size :" << vector1.size() << ", capacity :" << vector1.capacity() << endl;
 
 
-	cout << endl <<"- - - - - - - - - - - -"<< endl;
-	SimpleVector<string> vector2(20);
+	cout << endl << "- - - - - - - - - - - -" << endl;
+	SimpleVector<string> vector2(5);
 	vector2.push_back("안녕");
 	vector2.push_back("하세요");
 	vector2.push_back("테스트");
@@ -77,5 +118,15 @@ int main() {
 	vector2.print();
 	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
 
+	vector2.push_back("벡터 크기를 늘려볼게요.") ;
+	vector2.push_back("얍!");
+	vector2.print();
+	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
+	cout << "벡터 정렬" << endl;
+	vector2.sortData();
+	vector2.print();
+	cout << "벡터 사이즈 변경" << endl;
+	vector2.resize(20);
+	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
 	return 0;
 }
