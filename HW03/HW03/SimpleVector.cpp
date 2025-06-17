@@ -10,6 +10,11 @@ private:
 	int currentSize;
 	int currentCapacity;
 
+	void release() {
+		delete[] data;
+		data = nullptr;
+	}
+
 public:
 	SimpleVector()
 		: data(new T[10]), currentCapacity(10), currentSize(0) {
@@ -28,25 +33,14 @@ public:
 	}
 
 	~SimpleVector() {
-		delete[] data;
+		release();
 	}
 
 	void push_back(const T& value)
 	{
 		if (currentSize >= currentCapacity)
 		{
-			if (0 < currentCapacity)
-			{
-				int newCapacity = currentCapacity + 5;
-				T* tmpData = new T[newCapacity];
-				for (int i = 0; i < currentSize; ++i)
-				{
-					tmpData[i] = data[i];
-				}
-				currentCapacity = newCapacity;
-				delete[] data;
-				data = tmpData;
-			}
+			resize(currentCapacity + 5);
 		}
 		data[currentSize++] = value;
 	}
@@ -56,33 +50,28 @@ public:
 		if (currentSize > 0) --currentSize;
 	}
 
-	int size() {
+	int size() const {
 		return currentSize;
 	}
 
-	int capacity() {
+	int capacity() const {
 		return currentCapacity;
 	}
 
 
 	void resize(int newCapacity) {
-		if (newCapacity < 0) {
-			cout << "양수를 입력하세요";
+		if (newCapacity < currentCapacity) {
 			return;
 		}
 
 		T* tmpData = new T[newCapacity];
 
-		int tmp = (newCapacity < currentSize) ? newCapacity : currentSize; // newCapacity가 원래 size보다 작은 경우 처리
-
-		for (int i = 0; i < tmp; i++) {
+		for (int i = 0; i < currentSize; i++) {
 			tmpData[i] = data[i];
 		}
 
-		delete[] data;
+		release();
 		data = tmpData;
-
-		currentSize = tmp;
 		currentCapacity = newCapacity;
 	}
 
@@ -103,6 +92,9 @@ public:
 
 
 int main() {
+	// 힙 메모리 누수를 감지하는 코드
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	SimpleVector<int> vector1;
 
 	vector1.push_back(10);
@@ -135,7 +127,7 @@ int main() {
 	vector2.sortData();
 	vector2.print();
 	cout << "벡터 사이즈 변경" << endl;
-	vector2.resize(5);
+	vector2.resize(20);
 	cout << "size :" << vector2.size() << ", capacity :" << vector2.capacity() << endl;
 	vector2.print();
 	return 0;
